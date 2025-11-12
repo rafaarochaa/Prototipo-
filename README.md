@@ -2,338 +2,375 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Lotérica Caixas — App</title>
   <style>
     :root{
-      --bg:#fff0f6; --card:#fff; --accent:#6fd6ff; --muted:#6b6b6b; --glass:rgba(255,255,255,0.8); --shadow:0 8px 28px rgba(0,0,0,0.08);
-      --radius:14px; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+      --bg:#ffeaf0; /* light pink */
+      --card:#fff;
+      --muted:#7a7a7a;
+      --accent:#ff6fa3;
+      --glass: rgba(255,255,255,0.7);
+      --shadow: 0 6px 18px rgba(0,0,0,0.08);
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
     }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#fff);color:#222}
-    .app{max-width:1100px;margin:26px auto;padding:20px}
-    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
-    header h1{font-size:20px;margin:0}
-    .top-actions{display:flex;gap:8px;align-items:center}
-    .btn{background:var(--accent);color:#fff;padding:8px 12px;border-radius:10px;border:none;cursor:pointer;box-shadow:var(--shadow);font-weight:600}
-    .btn.ghost{background:transparent;color:var(--accent);border:1px solid rgba(255,111,163,0.18)}
-    .layout{display:grid;grid-template-columns:260px 1fr;gap:18px}
-    nav{background:var(--card);padding:14px;border-radius:var(--radius);box-shadow:var(--shadow)}
-    nav button{display:block;width:100%;text-align:left;padding:10px;border-radius:10px;border:none;background:transparent;cursor:pointer;margin-bottom:6px}
-    nav button.active{background:linear-gradient(90deg,rgba(255,111,163,0.12),rgba(255,111,163,0.06));font-weight:700}
-    main{background:var(--card);padding:18px;border-radius:var(--radius);box-shadow:var(--shadow);min-height:560px}
-    .card{background:var(--glass);padding:14px;border-radius:12px;margin-bottom:12px}
-    label{display:block;font-size:13px;margin-bottom:6px;color:var(--muted)}
-    input[type=text], input[type=number], select, textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #f6d7e3;background:transparent}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:8px;border-bottom:1px solid #f4dfe8;font-size:13px}
+    html,body{height:100%;}
+    body{margin:0;background:linear-gradient(180deg,var(--bg),#fff);color:#222}
+    .app{max-width:1100px;margin:28px auto;padding:22px;border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(255,255,255,0.95));box-shadow:var(--shadow)}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#ff9cc2);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px}
+    h1{margin:0;font-size:20px}
+    nav{display:flex;gap:8px}
+    .tab{padding:8px 12px;border-radius:10px;background:transparent;border:1px solid transparent;cursor:pointer}
+    .tab.active{background:var(--accent);color:white}
+    main{display:grid;grid-template-columns:1fr 360px;gap:18px}
+    .card{background:var(--card);padding:16px;border-radius:12px;box-shadow:var(--shadow)}
+    .profile .row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px dashed #eee}
     .muted{color:var(--muted);font-size:13px}
-    .pill{display:inline-block;padding:6px 8px;border-radius:999px;background:rgba(255,111,163,0.12);color:var(--accent);font-weight:600}
-    .row{display:flex;gap:10px}
-    .col{flex:1}
+    .actions{display:flex;gap:8px;margin-top:10px}
+    button{background:var(--accent);border:none;color:white;padding:8px 12px;border-radius:10px;cursor:pointer}
+    button.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+    .transactions table{width:100%;border-collapse:collapse}
+    .transactions th,.transactions td{padding:8px;border-bottom:1px solid #f3f3f3;text-align:left;font-size:13px}
+    .status.win{color:green;font-weight:600}
+    .status.lose{color:#d00}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    label{display:block;font-size:13px;margin-bottom:6px}
+    input[type=text], input[type=number], select{width:100%;padding:8px;border-radius:8px;border:1px solid #eee}
+    .small{font-size:12px}
+    .admin-list{max-height:320px;overflow:auto}
     footer{margin-top:14px;text-align:center;color:var(--muted);font-size:13px}
-    @media (max-width:900px){.layout{grid-template-columns:1fr}.app{padding:12px}}
 
-    /* Modal PIN */
-    .overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(0deg,rgba(0,0,0,0.35),rgba(0,0,0,0.2));}
-    .modal{background:var(--card);padding:20px;border-radius:12px;width:360px;box-shadow:0 10px 40px rgba(0,0,0,0.25)}
-    .pin-inputs{display:flex;gap:10px;justify-content:center;margin:12px 0}
-    .pin-inputs input{width:56px;height:56px;font-size:24px;text-align:center;border-radius:10px;border:1px solid #f0d6e1}
+    /* Login overlay */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center}
+    .login{width:360px;background:linear-gradient(180deg,#fff,#fff7fb);padding:20px;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,0.2);text-align:center}
+    .pin-inputs{display:flex;gap:8px;justify-content:center;margin:14px 0}
+    .pin-inputs input{width:56px;height:56px;font-size:24px;text-align:center;border-radius:10px;border:1px solid #eee}
+    .help{font-size:13px;color:var(--muted)}
 
-    /* admin badge */
-    .admin-badge{background:#ffe6f0;color:var(--accent);padding:6px 8px;border-radius:8px;font-weight:700}
+    /* responsive */
+    @media (max-width:880px){main{grid-template-columns:1fr;}}
   </style>
 </head>
 <body>
-  <div class="app">
+  <div class="app" id="app">
     <header>
-      <h1>Lotérica Caixas</h1>
-      <div class="top-actions">
-        <div class="muted small">Usuário: <span id="user-name">—</span></div>
-        <button class="btn" id="open-profile">Perfil</button>
+      <div class="brand">
+        <div class="logo">LC</div>
+        <div>
+          <h1>Lotérica Caixas</h1>
+          <div class="muted">Gestão de apostas, pagamentos e histórico</div>
+        </div>
       </div>
+      <nav>
+        <button class="tab active" data-tab="cliente">Cliente</button>
+        <button class="tab" data-tab="jogos">Jogos da Sorte</button>
+        <button class="tab" data-tab="pagamentos">Pagamentos</button>
+        <button class="tab" data-tab="admin">Admin</button>
+      </nav>
     </header>
 
-    <div class="layout">
-      <nav>
-        <button class="active" data-tab="dashboard">Dashboard</button>
-        <button data-tab="cliente">Cliente (Perfil)</button>
-        <button data-tab="jogos">Jogos da Sorte</button>
-        <button data-tab="transacoes">Histórico / Pagamentos</button>
-        <button data-tab="investir">Investir / Descontos</button>
-        <button data-tab="admin">Painel Admin <span class="admin-badge">ADM</span></button>
-        <button data-tab="config">Configurações</button>
-      </nav>
+    <main>
+      <section id="cliente" class="card cliente">
+        <h2>Perfil do Cliente</h2>
+        <div class="profile">
+          <div class="row"><div><strong id="clientName">—</strong><div class="muted">Nome</div></div><div><button id="editProfile" class="ghost">Editar</button></div></div>
+          <div class="row"><div><span id="clientCPF">***.***.***-**</span><div class="muted">CPF (privado)</div></div></div>
+          <div class="row"><div><strong>Saldo: R$ <span id="clientSaldo">0.00</span></strong><div class="muted">Disponível</div></div>
+          <div>
+            <button id="recarregar">Recarregar</button>
+          </div></div>
+          <div class="actions">
+            <button id="novaAposta">Nova Aposta</button>
+            <button id="verHistorico" class="ghost">Ver Histórico</button>
+          </div>
+        </div>
+      </section>
 
-      <main id="main-content"></main>
-    </div>
+      <aside>
+        <div class="card transactions">
+          <h3>Histórico Consolidado</h3>
+          <div class="muted small">Inclui Jogos da Sorte e Pagamentos</div>
+          <div style="margin-top:10px;">
+            <table id="txTable"><thead><tr><th>Data</th><th>Tipo</th><th>Detalhes</th><th>Valor</th></tr></thead><tbody></tbody></table>
+          </div>
+        </div>
 
-    <footer>Design moderno • Fundo rosa claro • Demo — dados locais / opcional sync API</footer>
+        <div class="card" style="margin-top:12px;">
+          <h3>Atalhos</h3>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+            <button id="toJogos" class="ghost">Ir para Jogos</button>
+            <button id="toPagamentos" class="ghost">Ir para Pagamentos</button>
+          </div>
+        </div>
+      </aside>
+
+      <section id="jogos" class="card" style="display:none;">
+        <h2>Jogos da Sorte</h2>
+        <div class="muted small">Adicione apostas e valide resultados. Sistema suporta: Mega-Sena, Quina, Lotofácil, Lotomania.</div>
+
+        <div style="margin-top:12px;" id="apostaForm">
+          <label>Tipo de Jogo</label>
+          <select id="tipoJogo"><option value="megasena">Mega-Sena</option><option value="quina">Quina</option><option value="lotofacil">Lotofácil</option><option value="lotomania">Lotomania</option></select>
+          <div style="margin-top:8px;" id="numerosWrap">
+            <label>Números (separados por vírgula)</label>
+            <input type="text" id="numeros" placeholder="ex: 05,12,23,34,45,56" />
+          </div>
+          <div class="grid-2" style="margin-top:8px;">
+            <div>
+              <label>Valor da Aposta (R$)</label>
+              <input type="number" id="valorAposta" min="0" step="0.01" value="2.00" />
+            </div>
+            <div>
+              <label>Data da Aposta</label>
+              <input type="date" id="dataAposta" />
+            </div>
+          </div>
+          <div class="actions"><button id="salvarAposta">Salvar Aposta</button><button id="limparAposta" class="ghost">Limpar</button></div>
+        </div>
+
+        <hr style="margin:14px 0;" />
+        <div>
+          <h3>Configurar Resultado Oficial</h3>
+          <div class="muted small">Escolha o tipo de jogo e insira os números sorteados — o sistema atualizará automaticamente apostas e valores de prêmio.</div>
+          <div style="margin-top:8px;">
+            <select id="resTipo"><option value="megasena">Mega-Sena</option><option value="quina">Quina</option><option value="lotofacil">Lotofácil</option><option value="lotomania">Lotomania</option></select>
+            <label style="margin-top:8px;">Números sorteados</label>
+            <input type="text" id="resNumeros" placeholder="ex: 05,12,23,34,45,56" />
+            <div class="actions" style="margin-top:10px;"><button id="confirmResultado">Confirmar Resultado</button></div>
+          </div>
+        </div>
+
+        <hr style="margin:14px 0;" />
+        <div>
+          <h3>Apostas Recentes</h3>
+          <div id="apostasList" class="admin-list" style="margin-top:8px;"></div>
+        </div>
+      </section>
+
+      <section id="pagamentos" class="card" style="display:none;">
+        <h2>Pagamentos & Investimentos</h2>
+        <div class="muted small">Gerencie pagamentos, formas de pagamento e invista saldo do cliente.</div>
+        <div style="margin-top:8px;">
+          <label>Forma de Pagamento</label>
+          <select id="formaPagamento"><option>PIX</option><option>Cartão</option><option>Boleto</option><option>Transferência</option></select>
+          <label style="margin-top:8px">Valor (R$)</label>
+          <input type="number" id="valorPagamento" min="0" step="0.01" />
+          <div class="actions" style="margin-top:8px;"><button id="registrarPagamento">Registrar Pagamento</button></div>
+        </div>
+
+        <hr style="margin:12px 0" />
+        <div>
+          <h3>Investir Saldo</h3>
+          <label>Opções</label>
+          <select id="investOption"><option value="poupanca">Poupança (simulação)</option><option value="tesouro">Tesouro Direto (simulação)</option><option value="fundos">Fundos (simulação)</option></select>
+          <label style="margin-top:8px">Valor a Investir</label>
+          <input type="number" id="valorInvest" min="0" step="0.01" />
+          <div class="small muted">Ao investir via app, o cliente recebe desconto de taxa em apostas (simulado).</div>
+          <div class="actions" style="margin-top:8px;"><button id="investirSaldo">Investir</button></div>
+        </div>
+
+        <hr style="margin:12px 0" />
+        <div>
+          <h3>Histórico de Pagamentos</h3>
+          <div id="pagosList" style="margin-top:8px;"></div>
+        </div>
+      </section>
+
+      <section id="admin" class="card" style="display:none;">
+        <h2>Painel do Administrador</h2>
+        <div class="muted small">Visualize e gerencie apostas, resultados e pagamentos.</div>
+        <div style="margin-top:12px;">
+          <h4>Apostas</h4>
+          <div id="adminApostas" class="admin-list"></div>
+        </div>
+        <div style="margin-top:12px;">
+          <h4>Formulário Rápido — Inserir Resultado</h4>
+          <label>Tipo</label>
+          <select id="adminResTipo"><option value="megasena">Mega-Sena</option><option value="quina">Quina</option><option value="lotofacil">Lotofácil</option><option value="lotomania">Lotomania</option></select>
+          <label style="margin-top:8px">Números</label>
+          <input type="text" id="adminResNums" placeholder="05,12,23,34,45,56" />
+          <div class="actions" style="margin-top:8px;"><button id="adminSetResultado">Aplicar Resultado</button></div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer>Lotérica Caixas — protótipo. Dados salvos localmente (localStorage) para demonstração.</footer>
   </div>
 
-  <!-- PIN modal -->
-  <div class="overlay" id="pin-overlay" aria-hidden="false">
-    <div class="modal" role="dialog" aria-modal="true">
-      <h2>Entre com sua senha (4 dígitos)</h2>
-      <p class="muted">Insira o PIN para acessar o app.</p>
-      <div class="pin-inputs">
-        <input maxlength="1" inputmode="numeric" pattern="[0-9]*" class="pin-digit" />
-        <input maxlength="1" inputmode="numeric" pattern="[0-9]*" class="pin-digit" />
-        <input maxlength="1" inputmode="numeric" pattern="[0-9]*" class="pin-digit" />
-        <input maxlength="1" inputmode="numeric" pattern="[0-9]*" class="pin-digit" />
+  <!-- Login overlay (4-digit pin) -->
+  <div id="loginOverlay" class="overlay">
+    <div class="login">
+      <h2>Entrar — Lotérica Caixas</h2>
+      <div class="help">Digite sua senha de 4 dígitos</div>
+      <div class="pin-inputs" id="pinInputs">
+        <input maxlength="1" type="text" inputmode="numeric" pattern="[0-9]*" />
+        <input maxlength="1" type="text" inputmode="numeric" pattern="[0-9]*" />
+        <input maxlength="1" type="text" inputmode="numeric" pattern="[0-9]*" />
+        <input maxlength="1" type="text" inputmode="numeric" pattern="[0-9]*" />
       </div>
-      <div style="display:flex;gap:8px;justify-content:center">
-        <button class="btn" id="btn-enter">Entrar</button>
-        <button class="btn ghost" id="btn-reset">Resetar PIN</button>
-      </div>
-      <p class="muted small" style="text-align:center;margin-top:8px">PIN padrão: <strong>1234</strong> (troque nas configurações)</p>
+      <div class="muted small">Senha padrão para teste: <strong>1234</strong></div>
     </div>
   </div>
 
-<script>
-/********************* Estado e persistência *********************/
-const STORAGE_KEY = 'lot_caixas_v2';
-let state = {
-  user: { name: 'Cliente Demo', cpf: '', phone: '', email: '', private:true },
-  pin: '1234',
-  balance: 200.00,
-  bets: [], // {id,type,numbers,amount,date,status,prize}
-  payments: [], // {id,type,method,amount,date,details}
-  investments: [],
-  discounts: { loyalty: 0.05 },
-  winningNumbers: {}, // game -> array
-  admins: [{user:'admin', pass:'admin'}],
-};
+  <script>
+    // ---------- Utilities & Persistence ----------
+    const STORAGE_KEY = 'loterica_caixas_v1';
+    const defaultState = {
+      client: {name:'Ana Cliente', cpf:'000.000.000-00', saldo:100.00, pin:'1234'},
+      apostas: [], // {id, tipo, numeros:[], valor, data, status:'pendente'|'ganhou'|'perdeu', acertos:0, valor_premio:0}
+      pagamentos: [], // {id, data, tipo, valor, descricao}
+      settings:{discountActive:false}
+    };
+    function load(){
+      try{const raw=localStorage.getItem(STORAGE_KEY);return raw?JSON.parse(raw):structuredClone(defaultState);}catch(e){console.error(e);return structuredClone(defaultState)}
+    }
+    function save(state){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
+    let state = load();
 
-function load(){
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if(raw){ try{ const parsed = JSON.parse(raw); state = Object.assign(state, parsed); } catch(e){console.error(e)} }
-  document.getElementById('user-name').innerText = state.user.name || '—';
-}
-function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    // ---------- UI wiring ----------
+    const tabs = document.querySelectorAll('.tab');
+    const sections = {cliente:document.getElementById('cliente'),jogos:document.getElementById('jogos'),pagamentos:document.getElementById('pagamentos'),admin:document.getElementById('admin')};
+    tabs.forEach(t=>t.addEventListener('click',()=>{tabs.forEach(x=>x.classList.remove('active'));t.classList.add('active');const tab=t.dataset.tab;Object.values(sections).forEach(s=>s.style.display='none');sections[tab].style.display='block'}));
 
-/********************* Navegação / Router *********************/
-const main = document.getElementById('main-content');
-const navButtons = document.querySelectorAll('nav button');
-navButtons.forEach(b=> b.addEventListener('click', ()=>{ navButtons.forEach(x=>x.classList.remove('active')); b.classList.add('active'); showTab(b.dataset.tab); }));
-function showTab(tab){
-  if(tab==='dashboard') return renderDashboard();
-  if(tab==='cliente') return renderCliente();
-  if(tab==='jogos') return renderJogos();
-  if(tab==='transacoes') return renderTransacoes();
-  if(tab==='investir') return renderInvestir();
-  if(tab==='admin') return renderAdmin();
-  if(tab==='config') return renderConfig();
-}
+    // Login
+    const loginOverlay = document.getElementById('loginOverlay');
+    const pinInputs = Array.from(document.querySelectorAll('.pin-inputs input'));
+    pinInputs.forEach((inp,i)=>{
+      inp.addEventListener('input',()=>{if(inp.value.length) pinInputs[Math.min(i+1,pinInputs.length-1)].focus();});
+      inp.addEventListener('keydown',e=>{if(e.key==='Backspace' && !inp.value && i>0) pinInputs[i-1].focus();});
+    });
+    function checkPin(){const pin=pinInputs.map(i=>i.value||'').join('');if(pin.length===4){if(pin===state.client.pin){loginOverlay.style.display='none';renderAll();}else{alert('PIN incorreto. Use 1234 para teste.');pinInputs.forEach(i=>i.value='');pinInputs[0].focus();}}}
+    pinInputs.forEach(i=>i.addEventListener('input',checkPin));
+    pinInputs[0].focus();
 
-/********************* Dashboard *********************/
-function renderDashboard(){
-  main.innerHTML = `
-    <div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><div><h3>Saldo disponível</h3><p class="muted">Seu saldo para apostas e saque</p></div><div class="pill">R$ ${state.balance.toFixed(2)}</div></div></div>
-    <div class="card"><h3>Últimas apostas</h3><div id="last-bets"></div></div>
-    <div class="card"><h3>Últimos pagamentos</h3><div id="last-payments"></div></div>
-  `;
-  renderLastBets(); renderLastPayments();
-}
-function renderLastBets(){ const el=document.getElementById('last-bets'); const last = state.bets.slice(-5).reverse(); if(!last.length) return el.innerHTML='<p class="muted">Nenhuma aposta.</p>'; el.innerHTML=`<table><thead><tr><th>Data</th><th>Jogo</th><th>Números</th><th>Valor</th><th>Status</th></tr></thead><tbody>${last.map(b=>`<tr><td>${new Date(b.date).toLocaleString()}</td><td>${b.type}</td><td>${b.numbers.join(', ')}</td><td>R$ ${b.amount.toFixed(2)}</td><td>${b.status}</td></tr>`).join('')}</tbody></table>`; }
-function renderLastPayments(){ const el=document.getElementById('last-payments'); const last = state.payments.slice(-5).reverse(); if(!last.length) return el.innerHTML='<p class="muted">Nenhum pagamento.</p>'; el.innerHTML=`<table><thead><tr><th>Data</th><th>Tipo</th><th>Método</th><th>Valor</th></tr></thead><tbody>${last.map(p=>`<tr><td>${new Date(p.date).toLocaleString()}</td><td>${p.type}</td><td>${p.method||'-'}</td><td>R$ ${p.amount.toFixed(2)}</td></tr>`).join('')}</tbody></table>`; }
+    // Render functions
+    function renderProfile(){document.getElementById('clientName').textContent=state.client.name;document.getElementById('clientCPF').textContent='***.***.***-**';document.getElementById('clientSaldo').textContent=state.client.saldo.toFixed(2);}    
+    function renderTx(){const tb=document.querySelector('#txTable tbody');tb.innerHTML='';
+      const all = [...state.apostas.map(a=>({date:a.data,type:'Aposta',details:`${a.tipo} — ${a.numeros.join(', ')}`,valor:(a.valor_premio? a.valor_premio : -a.valor)})), ...state.pagamentos.map(p=>({date:p.data,type:'Pagamento',details:p.tipo + (p.descricao? ' — '+p.descricao : ''),valor:p.valor}))];
+      all.sort((a,b)=> new Date(b.date) - new Date(a.date));
+      all.forEach(r=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${new Date(r.date).toLocaleString()}</td><td>${r.type}</td><td>${r.details}</td><td>R$ ${Number(r.valor).toFixed(2)}</td>`;tb.appendChild(tr);});
+    }
+    function renderApostasList(){const wrap=document.getElementById('apostasList');wrap.innerHTML='';state.apostas.slice().reverse().forEach(a=>{const div=document.createElement('div');div.style.padding='10px';div.style.border='1px solid #faf0f5';div.style.borderRadius='10px';div.style.marginBottom='8px';div.innerHTML=`<div style="display:flex;justify-content:space-between"><div><strong>${a.tipo}</strong><div class="muted small">${a.numeros.join(', ')}</div></div><div><div class="small">R$ ${a.valor.toFixed(2)}</div><div class="muted small">${a.status}</div></div></div>`;wrap.appendChild(div);});
+    }
+    function renderAdminApostas(){const wrap=document.getElementById('adminApostas');wrap.innerHTML='';state.apostas.slice().reverse().forEach(a=>{const container=document.createElement('div');container.style.padding='8px';container.style.borderBottom='1px solid #f5f5f5';container.innerHTML=`<div style="display:flex;justify-content:space-between"><div><strong>${a.tipo}</strong><div class="muted small">${a.numeros.join(', ')} — ${new Date(a.data).toLocaleString()}</div></div><div style="text-align:right"><div class="small">Valor: R$ ${a.valor.toFixed(2)}</div><div class="small">Status: ${a.status}</div></div></div>`;wrap.appendChild(container);});}
+    function renderPagamentos(){const wrap=document.getElementById('pagosList');wrap.innerHTML='';state.pagamentos.slice().reverse().forEach(p=>{const d=document.createElement('div');d.style.padding='8px';d.style.borderBottom='1px solid #f5f5f5';d.innerHTML=`<div style="display:flex;justify-content:space-between"><div><strong>${p.tipo}</strong><div class="muted small">${p.descricao||''}</div></div><div>R$ ${p.valor.toFixed(2)}</div></div>`;wrap.appendChild(d);});}
 
-/********************* Cliente / Perfil *********************/
-function renderCliente(){
-  main.innerHTML = `
-    <div class="card"><h3>Perfil</h3>
-      <label>Nome</label><input id="cfg-name" value="${escapeHtml(state.user.name)}">
-      <label>CPF</label><input id="cfg-cpf" value="${escapeHtml(state.user.cpf)}">
-      <label>Telefone</label><input id="cfg-phone" value="${escapeHtml(state.user.phone)}">
-      <label>Email</label><input id="cfg-email" value="${escapeHtml(state.user.email)}">
-      <div style="margin-top:10px"><button class="btn" id="save-profile">Salvar perfil</button></div>
-      <p class="muted small">As informações pessoais são privadas e ficam no seu navegador (local).</p>
-    </div>
-    <div class="card"><h3>Transações consolidadas</h3><div id="mini-trans"></div></div>
-  `;
-  document.getElementById('save-profile').addEventListener('click', ()=>{ state.user.name=document.getElementById('cfg-name').value||state.user.name; state.user.cpf=document.getElementById('cfg-cpf').value||state.user.cpf; state.user.phone=document.getElementById('cfg-phone').value||state.user.phone; state.user.email=document.getElementById('cfg-email').value||state.user.email; document.getElementById('user-name').innerText=state.user.name; save(); alert('Perfil salvo (local).'); });
-  renderMiniTrans();
-}
-function renderMiniTrans(){ const el=document.getElementById('mini-trans'); const bets = state.bets.map(b=>({date:b.date,type:'Aposta',desc:`${b.type} — ${b.numbers.join(', ')}`,amount:-b.amount})); const pays = state.payments.map(p=>({date:p.date,type:p.type,desc:p.details||'-',amount:p.amount})); const all=bets.concat(pays).sort((a,b)=>new Date(b.date)-new Date(a.date)); if(!all.length) return el.innerHTML='<p class="muted">Nenhuma transação.</p>'; el.innerHTML=`<table><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th></tr></thead><tbody>${all.map(t=>`<tr><td>${new Date(t.date).toLocaleString()}</td><td>${t.type}</td><td>${t.desc}</td><td>${t.amount<0?`- R$ ${Math.abs(t.amount).toFixed(2)}`:`R$ ${t.amount.toFixed(2)}`}</td></tr>`).join('')}</tbody></table>`; }
+    function renderAll(){renderProfile();renderTx();renderApostasList();renderAdminApostas();renderPagamentos();}
 
-/********************* Jogos da Sorte *********************/
-const GAMES = {
-  'Mega-Sena': { picks:6, max:60 },
-  'Quina': { picks:5, max:80 },
-  'Lotofácil': { picks:15, max:25 },
-  'Lotomania': { picks:20, max:100 }
-};
+    // ---------- Apostas: create, validate, prize calc ----------
+    document.getElementById('salvarAposta').addEventListener('click',()=>{
+      const tipo=document.getElementById('tipoJogo').value;
+      const numeros = document.getElementById('numeros').value.split(',').map(s=>s.trim()).filter(Boolean);
+      const valor = Number(document.getElementById('valorAposta').value) || 0;
+      const data = document.getElementById('dataAposta').value || new Date().toISOString();
+      if(!numeros.length){return alert('Insira números válidos.');}
+      // basic validation per jogo
+      const valid = validateNumbersForGame(tipo,numeros);
+      if(!valid.ok) return alert(valid.msg);
+      const aposta = {id:cryptoId(),tipo,numeros,valor,data,status:'pendente',acertos:0,valor_premio:0};
+      state.apostas.push(aposta); state.client.saldo -= valor; // debit
+      state.pagamentos.push({id:cryptoId(),data:new Date().toISOString(),tipo:'Pagamento',valor:-valor,descricao:'Compra de aposta'});
+      save(state); renderAll(); alert('Aposta registrada.');
+    });
+    document.getElementById('limparAposta').addEventListener('click',()=>{document.getElementById('numeros').value='';document.getElementById('valorAposta').value='2.00';});
 
-function renderJogos(){
-  main.innerHTML = `
-    <div class="card">
-      <h3>Registrar Aposta</h3>
-      <label>Tipo de Jogo</label>
-      <select id="bet-type">${Object.keys(GAMES).map(g=>`<option>${g}</option>`).join('')}</select>
-      <label style="margin-top:8px">Números (vírgula)</label>
-      <input id="bet-numbers" placeholder="ex: 1,2,3...">
-      <div class="row" style="margin-top:10px"><div class="col"><label>Valor (R$)</label><input id="bet-amount" type="number" value="5" min="1" step="0.5"></div><div class="col"><label>&nbsp;</label><button class="btn" id="place-bet">Registrar aposta</button></div></div>
-      <p class="muted small">Valor será debitado do saldo.</p>
-    </div>
+    function validateNumbersForGame(tipo,arr){
+      // basic checks: quantity & numeric
+      const nums = arr.map(n=>Number(n));
+      if(nums.some(isNaN)) return {ok:false,msg:'Números devem ser numéricos.'};
+      const rules = {megasena:{min:6,max:6,range:1},quina:{min:5,max:5,range:1},lotofacil:{min:15,max:15,range:1},lotomania:{min:50,max:50,range:1}};
+      const r = rules[tipo]; if(!r) return {ok:false,msg:'Tipo inválido.'};
+      if(nums.length<r.min || nums.length>r.max) return {ok:false,msg:`${tipo}: precisa de ${r.min} números.`};
+      return {ok:true};
+    }
 
-    <div class="card">
-      <h3>Inserir/Atualizar Números vencedores</h3>
-      <label>Jogo</label>
-      <select id="winning-game">${Object.keys(GAMES).map(g=>`<option>${g}</option>`).join('')}</select>
-      <label style="margin-top:8px">Números vencedores (vírgula)</label>
-      <input id="winning-nums" placeholder="ex: 1,2,3...">
-      <div style="margin-top:10px"><button class="btn" id="save-winning">Salvar e validar apostas</button></div>
-      <p class="muted small">Ao salvar, o app atualiza status das apostas e gera pagamentos para prêmios.</p>
-    </div>
+    // admin/app: set official result
+    document.getElementById('confirmResultado').addEventListener('click',()=>{const tipo=document.getElementById('resTipo').value;const res=document.getElementById('resNumeros').value.split(',').map(s=>s.trim()).filter(Boolean);applyResult(tipo,res);});
+    document.getElementById('adminSetResultado').addEventListener('click',()=>{const tipo=document.getElementById('adminResTipo').value;const res=document.getElementById('adminResNums').value.split(',').map(s=>s.trim()).filter(Boolean);applyResult(tipo,res);});
 
-    <div class="card"><h3>Minhas apostas</h3><div id="bets-list"></div></div>
-  `;
-  document.getElementById('place-bet').addEventListener('click', placeBet);
-  document.getElementById('save-winning').addEventListener('click', saveWinning);
-  renderBetsList();
-}
+    function applyResult(tipo,resNumeros){
+      if(!resNumeros.length) return alert('Insira os números sorteados.');
+      // update each pending aposta of that type
+      let winners=0;let losers=0;
+      state.apostas.forEach(a=>{if(a.tipo===tipo && a.status==='pendente'){
+        const acert = a.numeros.filter(n=> resNumeros.includes(n)).length;
+        a.acertos = acert;
+        // determine prize value (simplified rules for demo)
+        const prize = calculatePrize(tipo,acert,a.valor);
+        if(prize>0){a.status='ganhou';a.valor_premio=prize; winners++;
+          // create payment record for prize
+          state.pagamentos.push({id:cryptoId(),data:new Date().toISOString(),tipo:'Prêmio',valor:prize,descricao:`Prêmio ${a.tipo} — acertos: ${acert}`});
+          state.client.saldo += prize;
+        } else {a.status='perdeu'; a.valor_premio=0; losers++;}
+      }});
+      save(state); renderAll(); alert(`Resultado aplicado. Vencedores: ${winners}, perdedores atualizados: ${losers}`);
+    }
 
-function placeBet(){
-  const type = document.getElementById('bet-type').value;
-  const raw = document.getElementById('bet-numbers').value;
-  const nums = raw.split(',').map(s=>parseInt(s.trim())).filter(n=>Number.isFinite(n));
-  const amount = parseFloat(document.getElementById('bet-amount').value)||0;
-  const spec = GAMES[type];
-  if(nums.length !== spec.picks){ alert(`O jogo ${type} requer ${spec.picks} números.`); return; }
-  if(nums.some(n=>n<1 || n>spec.max)){ alert(`Números inválidos (1-${spec.max}).`); return; }
-  if(amount<=0){ alert('Valor inválido'); return; }
-  if(amount>state.balance){ alert('Saldo insuficiente'); return; }
-  const bet = { id:'B'+Date.now(), type, numbers: nums, amount, date:new Date().toISOString(), status:'Em aberto', prize:0 };
-  state.bets.push(bet);
-  state.balance -= amount;
-  state.payments.push({ id:'P'+Date.now(), type:'Compra Aposta', method:'Saldo', amount:-amount, date:new Date().toISOString(), details:`Aposta ${type}` });
-  save(); renderBetsList(); renderDashboard(); alert('Aposta registrada.');
-}
+    function calculatePrize(tipo,acertos,valorAposta){
+      // NOTE: Esto é uma simulação simplificada dos prêmios.
+      // Regras artificiais: para demonstração, premia acertos mínimos.
+      const table = {
+        megasena: {6:5000000,5:50000,4:1000},
+        quina: {5:1000000,4:2000,3:50},
+        lotofacil: {15:100000,14:500,13:30},
+        lotomania: {20:300000,19:1000,18:30}
+      };
+      const tier = table[tipo]||{};
+      const base = tier[acertos] || 0;
+      // Apply proportion to bet value to keep relation
+      return base? Math.max( (base * (valorAposta/2)), 1 ) : 0;
+    }
 
-function renderBetsList(){ const el=document.getElementById('bets-list'); if(!state.bets.length) return el.innerHTML='<p class="muted">Sem apostas.</p>'; el.innerHTML=`<table><thead><tr><th>Data</th><th>Jogo</th><th>Números</th><th>Valor</th><th>Status</th><th>Ação</th></tr></thead><tbody>${state.bets.map(b=>`<tr><td>${new Date(b.date).toLocaleString()}</td><td>${b.type}</td><td>${b.numbers.join(', ')}</td><td>R$ ${b.amount.toFixed(2)}</td><td>${b.status}${b.prize?` — R$ ${b.prize.toFixed(2)}`:''}</td><td>${b.status==='Em aberto'?`<button class="btn ghost" onclick="cancelBet('${b.id}')">Cancelar</button>`:'-'}</td></tr>`).join('')}</tbody></table>`; }
+    // ---------- Pagamentos & Investir ----------
+    document.getElementById('registrarPagamento').addEventListener('click',()=>{
+      const tipo = document.getElementById('formaPagamento').value;
+      const valor = Number(document.getElementById('valorPagamento').value)||0;
+      if(valor<=0) return alert('Insira um valor maior que 0.');
+      state.pagamentos.push({id:cryptoId(),data:new Date().toISOString(),tipo:tipo,valor:valor,descricao:'Depósito'});
+      state.client.saldo += valor; save(state); renderAll(); alert('Pagamento registrado.');
+    });
 
-window.cancelBet = function(id){ const idx=state.bets.findIndex(b=>b.id===id); if(idx===-1) return; if(!confirm('Cancelar aposta e estornar valor?')) return; const b=state.bets[idx]; state.bets.splice(idx,1); state.balance += b.amount; state.payments.push({ id:'P'+Date.now(), type:'Estorno', method:'Saldo', amount:b.amount, date:new Date().toISOString(), details:`Estorno ${b.type}` }); save(); renderBetsList(); renderDashboard(); }
+    document.getElementById('investirSaldo').addEventListener('click',()=>{
+      const op = document.getElementById('investOption').value; const val = Number(document.getElementById('valorInvest').value)||0;
+      if(val<=0) return alert('Insira valor válido.'); if(val>state.client.saldo) return alert('Saldo insuficiente.');
+      // simulate investment: remove from balance, create record and apply immediate small bonus (simulated)
+      state.client.saldo -= val;
+      const bonus = val * 0.02; // 2% immediate simulated bonus
+      state.pagamentos.push({id:cryptoId(),data:new Date().toISOString(),tipo:'Investimento',valor:-val,descricao:`${op}`});
+      state.pagamentos.push({id:cryptoId(),data:new Date().toISOString(),tipo:'Bônus Invest',valor:bonus,descricao:'Bônus por investir via app'});
+      state.client.saldo += bonus;
+      // enable discount state if investing
+      state.settings.discountActive = true;
+      save(state); renderAll(); alert(`Investimento simulado realizado. Bônus R$ ${bonus.toFixed(2)} concedido. Desconto em apostas ativado.`);
+    });
 
-/********************* Validar resultados e cálculo de prêmios *********************/
-// Prize logic: more realistic fixed multipliers/tables per game
-function prizeFor(type, stake, matched){
-  // values are illustrative; in a real app should use official rules / pools
-  const table = {
-    'Mega-Sena': {6: 1000000,5: 50000,4: 1000}, // fixed prize values per R$1 stake approximation
-    'Quina': {5: 500000,4: 10000,3: 200},
-    'Lotofácil': {15: 300000,14: 2500,13: 200,12:50,11:10},
-    'Lotomania': {20: 400000,19:5000,18:500,17:50,16:10,15:5}
-  };
-  const t = table[type] || {};
-  const base = t[matched] || 0;
-  // base represents prize for 1 unit stake; scale by stake
-  return base * stake;
-}
+    // ---------- Admin actions ----------
+    // simple admin can delete aposta
+    function adminDeleteAposta(id){state.apostas = state.apostas.filter(a=>a.id!==id); save(state); renderAll();}
 
-function saveWinning(){
-  const game = document.getElementById('winning-game').value;
-  const raw = document.getElementById('winning-nums').value;
-  const arr = raw.split(',').map(s=>parseInt(s.trim())).filter(n=>Number.isFinite(n));
-  const spec = GAMES[game];
-  if(arr.length !== spec.picks){ if(!(game==='Lotofácil' && arr.length>=11 && arr.length<=15)) { alert(`Os números para ${game} devem ter ${spec.picks} (ou, para Lotofácil, 11-15).`); return; } }
-  state.winningNumbers[game]=arr;
-  let winners=0;
-  state.bets.forEach(b=>{
-    if(b.type!==game) return;
-    if(b.status!=='Em aberto') return;
-    const matched = b.numbers.filter(n=>arr.includes(n)).length;
-    const prize = prizeFor(b.type, b.amount, matched);
-    b.prize = prize;
-    b.status = prize>0?`Vencedora (${matched} acertos)`:'Perdida';
-    if(prize>0){ winners++; state.payments.push({ id:'W'+Date.now()+Math.floor(Math.random()*99), type:'Prêmio', method:'PIX', amount:prize, date:new Date().toISOString(), details:`Prêmio ${b.type} — ${matched} acertos` }); state.balance += prize; }
-  });
-  save(); renderBetsList(); renderDashboard(); alert(`Resultados processados. ${winners} apostas premiadas.`);
-}
+    // ---------- Helpers ----------
+    function cryptoId(){return 'id-'+Math.random().toString(36).slice(2,9);}    
 
-/********************* Transações / Pagamentos *********************/
-function renderTransacoes(){
-  main.innerHTML = `
-    <div class="card"><h3>Histórico consolidado</h3><div id="tx-list"></div></div>
-    <div class="card"><h3>Realizar depósito / pagamento</h3>
-      <div class="row"><div class="col"><label>Método</label><select id="pay-method"><option>PIX</option><option>Cartão</option><option>Boleto</option><option>Saldo</option></select></div>
-      <div class="col"><label>Valor</label><input id="pay-amount" type="number" min="0.5" step="0.5" value="10"></div>
-      <div class="col"><label>&nbsp;</label><button class="btn" id="make-payment">Pagar / Adicionar</button></div></div>
-      <p class="muted small">Cartão e Boleto aplicam pequenas taxas simuladas.</p>
-    </div>
-  `;
-  document.getElementById('make-payment').addEventListener('click', makePayment);
-  renderTxList();
-}
-function renderTxList(){ const el=document.getElementById('tx-list'); const bets = state.bets.map(b=>({date:b.date,type:'Aposta',desc:`${b.type} — ${b.numbers.join(', ')}`,amount:-b.amount})); const pays = state.payments.map(p=>({date:p.date,type:p.type,desc:p.details||'-',amount:p.amount,method:p.method})); const all=bets.concat(pays).sort((a,b)=>new Date(b.date)-new Date(a.date)); if(!all.length) return el.innerHTML='<p class="muted">Nenhuma transação.</p>'; el.innerHTML=`<table><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th></tr></thead><tbody>${all.map(t=>`<tr><td>${new Date(t.date).toLocaleString()}</td><td>${t.type}${t.method?` <span class="small">(${t.method})</span>`:''}</td><td>${t.desc}</td><td>${t.amount<0?`- R$ ${Math.abs(t.amount).toFixed(2)}`:`R$ ${t.amount.toFixed(2)}`}</td></tr>`).join('')}</tbody></table>`; }
-function makePayment(){ const method=document.getElementById('pay-method').value; const amount=parseFloat(document.getElementById('pay-amount').value)||0; if(amount<=0){alert('Valor inválido');return;} let net=amount; if(method==='Cartão') net = amount*0.98; if(method==='Boleto') net = amount*0.995; state.balance += net; state.payments.push({ id:'PM'+Date.now(), type:'Depósito', method, amount: net, date:new Date().toISOString(), details:`Depósito via ${method}` }); save(); renderTransacoes(); renderDashboard(); alert('Depósito realizado.'); }
+    // initial render
+    renderAll();
 
-/********************* Investir / Descontos *********************/
-function renderInvestir(){ main.innerHTML = `
-  <div class="card"><h3>Investir saldo</h3>
-    <div class="row"><div class="col"><label>Valor a investir (R$)</label><input id="invest-amount" type="number" min="1" step="0.5"></div><div class="col"><label>Prazo (meses)</label><input id="invest-months" type="number" min="1" value="6"></div><div class="col"><label>&nbsp;</label><button class="btn" id="do-invest">Investir</button></div></div>
-    <p class="muted small">Taxa simulada: 0.8% ao mês</p>
-  </div>
-  <div class="card"><h3>Descontos</h3><p class="muted">Desconto fidelidade: <strong>${(state.discounts.loyalty*100).toFixed(1)}%</strong>. Ao investir você pode aumentar este desconto.</p><div id="invest-list"></div></div>
-`; document.getElementById('do-invest').addEventListener('click', doInvest); renderInvestList(); }
-function doInvest(){ const amount=parseFloat(document.getElementById('invest-amount').value)||0; const months=parseInt(document.getElementById('invest-months').value)||1; if(amount<=0||amount>state.balance){alert('Valor inválido ou saldo insuficiente');return;} const rate=0.008; const expected=amount*Math.pow(1+rate,months); const rec={id:'I'+Date.now(),amount,months,investedAt:new Date().toISOString(),expected}; state.investments.push(rec); state.balance -= amount; state.payments.push({id:'INV'+Date.now(),type:'Investimento',method:'Saldo',amount:-amount,date:new Date().toISOString(),details:`Investimento ${months} meses`}); // bonus: raise loyalty proportionally
-state.discounts.loyalty = Math.min(0.2, state.discounts.loyalty + Math.min(0.01, amount/1000)); save(); renderInvestList(); renderDashboard(); alert('Investimento realizado.'); }
-function renderInvestList(){ const el=document.getElementById('invest-list'); if(!state.investments.length) return el.innerHTML='<p class="muted">Nenhum investimento.</p>'; el.innerHTML=`<table><thead><tr><th>Data</th><th>Valor</th><th>Meses</th><th>Expectativa</th></tr></thead><tbody>${state.investments.map(i=>`<tr><td>${new Date(i.investedAt).toLocaleString()}</td><td>R$ ${i.amount.toFixed(2)}</td><td>${i.months}</td><td>R$ ${i.expected.toFixed(2)}</td></tr>`).join('')}</tbody></table>`; }
+    // expose some shortcuts
+    document.getElementById('toJogos').addEventListener('click',()=>{document.querySelector('[data-tab="jogos"]').click();});
+    document.getElementById('toPagamentos').addEventListener('click',()=>{document.querySelector('[data-tab="pagamentos"]').click();});
+    document.getElementById('novaAposta').addEventListener('click',()=>{document.querySelector('[data-tab="jogos"]').click();document.getElementById('numeros').focus();});
+    document.getElementById('verHistorico').addEventListener('click',()=>{document.querySelector('[data-tab="cliente"]').click();document.getElementById('txTable').scrollIntoView();});
+    document.getElementById('recarregar').addEventListener('click',()=>{const v=Number(prompt('Valor a recarregar (R$):')||0); if(v>0){state.client.saldo+=v;state.pagamentos.push({id:cryptoId(),data:new Date().toISOString(),tipo:'Recarga',valor:v});save(state);renderAll();}});
 
-/********************* Painel Admin *********************/
-function renderAdmin(){
-  main.innerHTML = `
-    <div class="card"><h3>Painel de Administração</h3>
-      <p class="muted">Visualize e gerencie apostas, pagamentos e resultados.</p>
-      <div style="margin-top:8px"><button class="btn" id="btn-refresh">Atualizar lista</button></div>
-    </div>
-    <div class="card"><h4>Apostas</h4><div id="admin-bets"></div></div>
-    <div class="card"><h4>Pagamentos</h4><div id="admin-payments"></div></div>
-  `;
-  document.getElementById('btn-refresh').addEventListener('click', ()=>{ renderAdminLists(); });
-  renderAdminLists();
-}
-function renderAdminLists(){ const eb=document.getElementById('admin-bets'); const ep=document.getElementById('admin-payments'); if(state.bets.length===0) eb.innerHTML='<p class="muted">Sem apostas.</p>'; else eb.innerHTML=`<table><thead><tr><th>Data</th><th>Jogo</th><th>Números</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead><tbody>${state.bets.map(b=>`<tr><td>${new Date(b.date).toLocaleString()}</td><td>${b.type}</td><td>${b.numbers.join(', ')}</td><td>R$ ${b.amount.toFixed(2)}</td><td>${b.status}</td><td><button class="btn ghost" onclick="adminMarkPaid('${b.id}')">Marcar Pago</button></td></tr>`).join('')}</tbody></table>`; if(state.payments.length===0) ep.innerHTML='<p class="muted">Sem pagamentos.</p>'; else ep.innerHTML=`<table><thead><tr><th>Data</th><th>Tipo</th><th>Método</th><th>Valor</th></tr></thead><tbody>${state.payments.map(p=>`<tr><td>${new Date(p.date).toLocaleString()}</td><td>${p.type}</td><td>${p.method||'-'}</td><td>R$ ${p.amount.toFixed(2)}</td></tr>`).join('')}</tbody></table>`; }
-window.adminMarkPaid = function(bid){ const bet = state.bets.find(b=>b.id===bid); if(!bet) return; if(!confirm('Marcar prêmio desta aposta como pago?')) return; // create payment record if prize exists
-  if(bet.prize && bet.prize>0){ state.payments.push({id:'ADM'+Date.now(), type:'Prêmio (Pago)', method:'PIX', amount: -bet.prize, date:new Date().toISOString(), details:`Pago ${bet.id}`}); /* note: negative indicates outflow */ }
-  bet.status = bet.status + ' — Pago'; save(); renderAdminLists(); alert('Atualizado.'); }
+    // set default date today for forms
+    document.getElementById('dataAposta').value = new Date().toISOString().slice(0,10);
 
-/********************* Configurações *********************/
-function renderConfig(){ main.innerHTML = `
-  <div class="card"><h3>PIN e Segurança</h3><label>Novo PIN (4 dígitos)</label><input id="new-pin" maxlength="4" placeholder="ex:4321"><div style="margin-top:8px"><button class="btn" id="change-pin">Alterar PIN</button></div>
-  <p class="muted small">PIN padrão: 1234 — altere por segurança.</p></div>
-  <div class="card"><h3>Exportar / Reset</h3><div style="display:flex;gap:8px"><button class="btn" id="export-data">Exportar JSON</button><button class="btn ghost" id="reset-data">Resetar app</button></div></div>
-`;
-  document.getElementById('change-pin').addEventListener('click', ()=>{ const v=document.getElementById('new-pin').value.trim(); if(!/^[0-9]{4}$/.test(v)){alert('PIN precisa de 4 dígitos');return;} state.pin=v; save(); alert('PIN atualizado.'); });
-  document.getElementById('export-data').addEventListener('click', ()=>{ const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='lot_caixas_export.json'; a.click(); });
-  document.getElementById('reset-data').addEventListener('click', ()=>{ if(!confirm('Resetar todos os dados locais?')) return; localStorage.removeItem(STORAGE_KEY); location.reload(); });
-}
-
-/********************* PIN Modal Behavior *********************/
-const overlay = document.getElementById('pin-overlay'); const pinInputs = Array.from(document.querySelectorAll('.pin-digit'));
-pinInputs.forEach((inp,i)=>{ inp.addEventListener('input', ()=>{ if(inp.value.length) pinInputs[Math.min(i+1,pinInputs.length-1)].focus(); }); inp.addEventListener('keydown', (e)=>{ if(e.key==='Backspace' && !inp.value && i>0) pinInputs[i-1].focus(); }); });
-document.getElementById('btn-enter').addEventListener('click', ()=>{ const val = pinInputs.map(i=>i.value||'').join(''); if(val===state.pin){ overlay.style.display='none'; overlay.setAttribute('aria-hidden','true'); showTab('dashboard'); } else{ alert('PIN inválido'); pinInputs.forEach(i=>i.value=''); pinInputs[0].focus(); } });
-document.getElementById('btn-reset').addEventListener('click', ()=>{ if(confirm('Restaurar PIN para 1234?')){ state.pin='1234'; save(); alert('PIN restaurado.'); } });
-
-/********************* Utilitários *********************/
-function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[c]); }
-
-/********************* Inicialização *********************/
-load(); overlay.style.display='flex'; pinInputs[0].focus(); // expose console helpers
-window.APP = { state, save };
-
-/********************* Sincronização com backend (exemplo) *********************/
-async function syncToServer(){
-  // exemplo - não funciona sem backend real
-  try{
-    const resp = await fetch('https://api.exemplo-loterica.com/sync',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(state)});
-    const json = await resp.json(); console.log('sync ok',json);
-  }catch(e){console.warn('sync falhou',e)}
-}
-
-</script>
+    // small note: the app uses localStorage for demo. In a real app, personal data must be stored on a secure server and encrypted.
+  </script>
 </body>
 </html>
-
 
 
 
